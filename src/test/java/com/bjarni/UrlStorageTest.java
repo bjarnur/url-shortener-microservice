@@ -16,7 +16,7 @@ import org.junit.Before;
  * @author bjarni
  */
 @RunWith(SpringRunner.class)
-@SpringBootTest(properties = {"server.port=2222", "url.micro.hostname=http://localhost"})
+@SpringBootTest
 public class UrlStorageTest {
 
 	private static final String TEST_URL_VALUE = "http://www.foo.com";
