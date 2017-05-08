@@ -68,7 +68,7 @@ public class UrlShortenerController {
 	
 	/**
 	 Returns a collection of all mapped URLs and their shorter versions */
-	@RequestMapping("/all-urls")
+	@RequestMapping(value = "/all-urls", method = RequestMethod.GET)
 	public ShortenedUrl[] allUrls() {
 		List<ShortenedUrl> urls = urlStorage.getAllRegisteredUrls();
 		return urls.toArray(new ShortenedUrl[urls.size()]);		

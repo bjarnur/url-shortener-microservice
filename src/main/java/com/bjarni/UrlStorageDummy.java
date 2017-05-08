@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.catalina.filters.AddDefaultCharsetFilter;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
 
 /**
@@ -17,11 +18,17 @@ import org.springframework.stereotype.Repository;
 @Repository
 public class UrlStorageDummy implements UrlStorage {
 
+	@Value("${url.micro.hostname}")
+	private String hostName;
+	
+	@Value("${server.port}")
+	private String portNumber;
+	
 	Map<String, ShortenedUrl> shortToOriginalUrlMap = new HashMap<String, ShortenedUrl>();
 	
 	@Override
 	public ShortenedUrl createShortenedUrl(String originalUrl, String urlKey) {
-		ShortenedUrl pair = new ShortenedUrl(originalUrl, urlKey);
+		ShortenedUrl pair = new ShortenedUrl(originalUrl, urlKey, hostName, portNumber);
 		shortToOriginalUrlMap.put(urlKey, pair);
 		return pair;
 	}

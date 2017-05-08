@@ -12,7 +12,12 @@ import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
  * 
  * Solution is built as a microservice to optimize for high
  * availability, and to make it possible to scale beyond one
- * machine. 
+ * machine.
+ * 
+ * The solution is still pretty rough, for example it's currently 
+ * storing all information in memory. A good opportunity for 
+ * improvement would be to implement connection to a datasource that  
+ * could be shared between all instances of the service. 
  * 
  * @author bjarni
  */
