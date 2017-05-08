@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.catalina.filters.AddDefaultCharsetFilter;
 import org.springframework.stereotype.Repository;
 
 /**
@@ -16,23 +17,23 @@ import org.springframework.stereotype.Repository;
 @Repository
 public class UrlStorageDummy implements UrlStorage {
 
-	Map<String, UrlShortening> shortToOriginalUrlMap = new HashMap<String, UrlShortening>();
-
+	Map<String, ShortenedUrl> shortToOriginalUrlMap = new HashMap<String, ShortenedUrl>();
+	
 	@Override
-	public String addUrlPair(String originalUrl, String urlKey) {
-		UrlShortening pair = new UrlShortening(originalUrl, urlKey);
+	public ShortenedUrl createShortenedUrl(String originalUrl, String urlKey) {
+		ShortenedUrl pair = new ShortenedUrl(originalUrl, urlKey);
 		shortToOriginalUrlMap.put(urlKey, pair);
-		return pair.getShortenedUrl();
+		return pair;
 	}
 
 	@Override
 	public String getOriginalUrl(String urlKey) {
-		UrlShortening pair = shortToOriginalUrlMap.get(urlKey);
-		return pair == null ? "" : pair.getOriginal();
+		ShortenedUrl shortenedUrl = shortToOriginalUrlMap.get(urlKey);
+		return shortenedUrl == null ? "" : shortenedUrl.getOriginal();
 	}
 
-	public List<UrlShortening> getAllRegisteredUrls() {
-		return new ArrayList<UrlShortening>(shortToOriginalUrlMap.values());
+	public List<ShortenedUrl> getAllRegisteredUrls() {
+		return new ArrayList<ShortenedUrl>(shortToOriginalUrlMap.values());
 	}
 
 }

@@ -3,7 +3,10 @@ package com.bjarni;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
@@ -20,38 +23,54 @@ import org.springframework.web.servlet.view.RedirectView;
 public class UrlShortenerController {
 
 	@Autowired
-	UrlStorage urlStorage;
-	
-	private int urlCounter = 0;
+	UrlStorage urlStorage;	
 	
 	/**
-	 Given an URL, this endpoint maps the URL to a shortened version  and 
-	 replies with a shortened URL that can be used to access the original */
-	@RequestMapping(value = "/create/{url}", method = RequestMethod.GET)
-	public String CreateUrlShortening(@PathVariable("url") String url) {
-		String urlKey = Integer.toString(urlCounter++); 
-		return urlStorage.addUrlPair(url, urlKey);
+	 * Given an original URL this endpoint maps it to a hashed value, which can 
+	 * be used in other endpoints to redirect to the original URL
+	 * 
+	 * @param Json representation of {@link {@link ShortenedUrl} where at least 
+	 * the <code>original</code> field has been set
+	 * @return Json representation of {@link {@link ShortenedUrl} containing 
+	 * information about original URL and shortened URL
+	 */
+	@RequestMapping(value = "/create", method = RequestMethod.PUT)
+	public ResponseEntity<ShortenedUrl> create (@RequestBody ShortenedUrl requestBody) {
+
+		if(requestBody != null) {
+			String originalUrl = requestBody.getOriginal();
+			if(originalUrl != null && !originalUrl.isEmpty()) {
+				String urlKey = Integer.toString(originalUrl.hashCode());
+				ShortenedUrl result = urlStorage.createShortenedUrl(originalUrl, urlKey);
+				return new ResponseEntity<ShortenedUrl>(result, HttpStatus.OK); 
+			}			
+		}
+		
+		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
 	}
 	
 	/**
-	 Looks up previously mapped URLs based on the provided shorthand. If 
-	 mapping is found user will be redirected to the original URL */
-	@RequestMapping(value = "/lookup/{url}", method = RequestMethod.GET)
-	public RedirectView lookup(@PathVariable("url") String url) {	    
+	 Looks up previously mapped URLs based on path argument. If mapping 
+	 is found user will be redirected to the original URL, if no 
+	 URL is found a BAD_REQUEST response will be sent. */
+	@RequestMapping(value = "/lookup/{urlKey}", method = RequestMethod.GET)
+	public Object lookup(@PathVariable("urlKey") String urlKey) {	    
 		
-		String originalUrl = urlStorage.getOriginalUrl(url);
+		String originalUrl = urlStorage.getOriginalUrl(urlKey);
+		if(originalUrl == null || originalUrl.isEmpty()) {
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+		}
+		
 		RedirectView redirectView = new RedirectView();
-	    if(originalUrl != null) {
-	    	redirectView.setUrl("http://" + originalUrl);
-	    } 
+    	redirectView.setUrl(originalUrl);
 	    return redirectView;
 	}
 	
 	/**
 	 Returns a collection of all mapped URLs and their shorter versions */
 	@RequestMapping("/all-urls")
-	public UrlShortening[] allUrls() {
-		List<UrlShortening> urls = urlStorage.getAllRegisteredUrls();
-		return urls.toArray(new UrlShortening[urls.size()]);		
+	public ShortenedUrl[] allUrls() {
+		List<ShortenedUrl> urls = urlStorage.getAllRegisteredUrls();
+		return urls.toArray(new ShortenedUrl[urls.size()]);		
 	}
 }

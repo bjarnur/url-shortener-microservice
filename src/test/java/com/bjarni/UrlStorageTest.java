@@ -19,7 +19,7 @@ import org.junit.Before;
 @SpringBootTest
 public class UrlStorageTest {
 
-	private static final String TEST_URL_VALUE = "www.foo.com";
+	private static final String TEST_URL_VALUE = "http://www.foo.com";
 	private static final String TEST_URL_KEY_0 = "0";
 	private static final String TEST_URL_KEY_100 = "100";
 	private static final String TEST_URL_RESULT = "localhost:2222/lookup/100";
@@ -29,14 +29,14 @@ public class UrlStorageTest {
 	@Before
 	public void setup() {
 		this.urlStorage = new UrlStorageDummy(); //TODO: Replace with real implementation when ready 
-		urlStorage.addUrlPair(TEST_URL_VALUE, TEST_URL_KEY_0);
+		urlStorage.createShortenedUrl(TEST_URL_VALUE, TEST_URL_KEY_0);
 	}
 	
 	@Test
 	public void testAddUrlPair() {		
 		String expectedRedirectUrl = TEST_URL_RESULT;
-		String actualRedirectUrl = urlStorage.addUrlPair(TEST_URL_VALUE, TEST_URL_KEY_100);
-		Assert.assertEquals(expectedRedirectUrl, actualRedirectUrl);
+		ShortenedUrl result = urlStorage.createShortenedUrl(TEST_URL_VALUE, TEST_URL_KEY_100);
+		Assert.assertEquals(expectedRedirectUrl, result.getShortenedUrlString());
 	}
 
 	@Test
@@ -48,7 +48,7 @@ public class UrlStorageTest {
 	
 	@Test
 	public void testGetAllRegisteredUrls() {
-		List<UrlShortening> result = urlStorage.getAllRegisteredUrls();
+		List<ShortenedUrl> result = urlStorage.getAllRegisteredUrls();
 		Assert.assertEquals(1, result.size());
 	}
 }

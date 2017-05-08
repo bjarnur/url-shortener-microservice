@@ -8,11 +8,11 @@ import java.util.List;
  * @author bjarni
  */
 public interface UrlStorage {
-
+	
 	/**
-	 Stores a coupling between a key and the original URL, returns 
-	 a short URL that will redirect to the original URL */
-	public String addUrlPair(String originalUrl, String urlKey);
+	 Creates, persists and returns a {@link ShortenedUrl} that contains
+	 information about how the original URL has been mapped to a shorter version */
+	public ShortenedUrl createShortenedUrl(String originalUrl, String urlKey);
 	
 	/**
 	 Returns original URL, given the shortened representation */
@@ -20,5 +20,5 @@ public interface UrlStorage {
 	
 	/**
 	 Returns a list of all currently registered URLs  */
-	public List<UrlShortening> getAllRegisteredUrls();
+	public List<ShortenedUrl> getAllRegisteredUrls();
 }
